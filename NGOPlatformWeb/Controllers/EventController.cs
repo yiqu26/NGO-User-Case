@@ -1,13 +1,30 @@
-﻿using Microsoft.AspNetCore.Mvc;
-// 民眾 個案 報名活動
-namespace NGOPlatformWeb.Controllers
+﻿using NGOPlatformWeb.Models; // 引用你的 Models 命名空間
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc;
+using NGOPlatformWeb.Models.Entity;
+
+public class EventController : Controller
 {
-    public class EventController : Controller
+    private readonly NGODbContext _dbContext;
+
+    public EventController(NGODbContext dbContext)
     {
-        public IActionResult Index()
+        _dbContext = dbContext;
+    }
+
+    public IActionResult Index(int? id)
+    {
+        if (id == null)
         {
-            ViewData["Title"] = "民眾活動頁面展示";
-            return View();
+            return RedirectToAction("Index", "Event");
         }
+
+        var activity = _dbContext.Activities.FirstOrDefault(a => a.ActivityId == id);
+        if (activity == null)
+        {
+            return NotFound();
+        }
+
+        return View(activity); // <--- 傳遞活動物件進 View
     }
 }
